@@ -5,6 +5,8 @@ import Mathlib.MeasureTheory.Measure.Haar.Unique
 import Mathlib.MeasureTheory.Group.Integral
 import Mathlib.Tactic.Linarith
 
+set_option autoImplicit false
+
 /-! # Normalized Haar measure on finite-dimensional unitary groups -/
 
 open scoped BigOperators
@@ -59,5 +61,25 @@ instance : Measure.IsHaarMeasure (haar α) := by unfold haar; infer_instance
 
 instance : IsProbabilityMeasure (haar α) where
   measure_univ := Measure.haarMeasure_self
+
+/-- Uniqueness among left-invariant probability measures on this compact group. -/
+theorem eq_haar (μ : Measure (UnitaryGroup α)) [IsProbabilityMeasure μ]
+    [μ.IsMulLeftInvariant] : μ = haar α := by
+  have h := Measure.isMulInvariant_eq_smul_of_compactSpace μ (haar α)
+  have hc := congr_arg (fun ν : Measure (UnitaryGroup α) => ν Set.univ) h
+  have hc' : Measure.haarScalarFactor μ (haar α) = 1 := by
+    simpa [ENNReal.smul_def, smul_eq_mul] using hc.symm
+  simpa [hc'] using h
+
+instance : (haar α).IsMulRightInvariant where
+  map_mul_right_eq_self g := by
+    letI := Measure.isProbabilityMeasure_map (μ := haar α) (measurable_mul_const g).aemeasurable
+    exact eq_haar _
+
+instance : (haar α).IsInvInvariant where
+  inv_eq_self := by
+    letI : IsProbabilityMeasure (haar α).inv :=
+      Measure.isProbabilityMeasure_map measurable_inv.aemeasurable
+    exact eq_haar _
 
 end Weingarten

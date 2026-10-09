@@ -1,6 +1,8 @@
 import Weingarten.Haar
 import Mathlib.LinearAlgebra.Matrix.Permutation
 
+set_option autoImplicit false
+
 /-! # Explicit unitary matrices implementing row and column symmetries -/
 
 namespace Weingarten
@@ -29,8 +31,8 @@ def signUnitary (a : α) : UnitaryGroup α :=
     ext i j
     by_cases hij : i = j
     · subst j
-      by_cases hi : i = a <;> simp [Matrix.diagonal_apply, Matrix.one_apply, hi]
-    · simp [Matrix.diagonal_apply, Matrix.one_apply, hij]⟩
+      by_cases hi : i = a <;> simp [hi]
+    · simp [hij]⟩
 
 @[simp] theorem signUnitary_mul_apply (a : α) (U : UnitaryGroup α) (i j : α) :
     (signUnitary a * U) i j = (if i = a then (-1 : ℂ) else 1) * U i j := by

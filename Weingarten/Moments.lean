@@ -1,6 +1,8 @@
 import Weingarten.Haar
 import Mathlib.Tactic.FunProp
 
+set_option autoImplicit false
+
 /-! # Mixed moments of Haar unitary matrices -/
 
 open scoped BigOperators

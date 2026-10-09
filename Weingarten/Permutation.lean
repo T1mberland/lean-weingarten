@@ -3,6 +3,8 @@ import Mathlib.LinearAlgebra.Matrix.NonsingularInverse
 import Mathlib.Data.Fintype.Perm
 import Mathlib.Analysis.Complex.Order
 
+set_option autoImplicit false
+
 /-!
 # Permutation tensors and their Gram matrix
 
@@ -30,6 +32,7 @@ def diagramMatrix : Matrix ((ι → α) × (ι → α)) (Equiv.Perm ι) ℂ :=
 def gramMatrix : Matrix (Equiv.Perm ι) (Equiv.Perm ι) ℂ :=
   (diagramMatrix (ι := ι) (α := α))ᴴ * diagramMatrix
 
+omit [DecidableEq ι] [Fintype α] in
 @[simp] theorem star_pairing (σ : Equiv.Perm ι) (i j : ι → α) :
     star (pairing σ i j) = pairing σ i j := by
   simp [pairing]
@@ -53,6 +56,7 @@ theorem gramMatrix_apply (σ τ : Equiv.Perm ι) :
 theorem gramMatrix_posSemidef : (gramMatrix (ι := ι) (α := α)).PosSemidef :=
   Matrix.posSemidef_conjTranspose_mul_self _
 
+omit [Fintype α] in
 /-- An injective word separates all permutation tensors. -/
 theorem pairing_injective (e : ι ↪ α) (σ τ : Equiv.Perm ι) :
     pairing σ e (e ∘ τ) = if σ = τ then 1 else 0 := by
@@ -66,12 +70,14 @@ theorem pairing_injective (e : ι ↪ α) (σ τ : Equiv.Perm ι) :
       rfl
   simp only [pairing, h]
 
+omit [Fintype α] in
 /-- In the stable range, reading one row recovers each coefficient of a tensor sum. -/
 theorem diagramMatrix_mulVec_embedding (e : ι ↪ α) (c : Equiv.Perm ι → ℂ)
     (τ : Equiv.Perm ι) :
     (diagramMatrix *ᵥ c) (e, e ∘ τ) = c τ := by
   simp [Matrix.mulVec, dotProduct, diagramMatrix, pairing_injective]
 
+omit [Fintype α] in
 /-- Permutation tensors are independent whenever the positions embed into the indices. -/
 theorem diagramMatrix_mulVec_injective (e : ι ↪ α) :
     Function.Injective (diagramMatrix (ι := ι) (α := α)).mulVec := by

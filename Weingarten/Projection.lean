@@ -1,5 +1,7 @@
 import Weingarten.Permutation
 
+set_option autoImplicit false
+
 /-!
 # Reconstruction from a possibly singular Gram matrix
 
@@ -14,12 +16,14 @@ namespace Weingarten
 
 variable {m n : Type*} [Fintype m] [Fintype n] [DecidableEq m] [DecidableEq n]
 
+omit [DecidableEq m] [DecidableEq n] in
 /-- A vector-valued matrix in the range of `A` and orthogonal to that range vanishes. -/
 theorem mul_eq_zero_of_gram_mul_eq_zero (A : Matrix m n ℂ) (B : Matrix n m ℂ)
     (h : Aᴴ * (A * B) = 0) : A * B = 0 := by
   apply Matrix.trace_conjTranspose_mul_self_eq_zero_iff.mp
   rw [Matrix.conjTranspose_mul, Matrix.mul_assoc, h, Matrix.mul_zero, Matrix.trace_zero]
 
+omit [DecidableEq m] [DecidableEq n] in
 /-- A Hermitian projection onto the column span of `A` is reconstructed by any
 generalized inverse `W` of its Gram matrix. Only `G W G = G` is required, so the
 statement remains valid when the Gram matrix is singular. -/
