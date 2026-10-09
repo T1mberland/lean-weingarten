@@ -22,8 +22,9 @@ result = subprocess.run(
 print(result.stdout, end='')
 allowed = {'propext', 'Classical.choice', 'Quot.sound'}
 reports = re.findall(r'depends on axioms:\s*\[([^\]]*)\]', result.stdout)
-if len(reports) != 14:
-    raise SystemExit(f'Expected 14 axiom reports; found {len(reports)}')
+expected = len(re.findall(r'^#print axioms ', Path('Weingarten/AxiomAudit.lean').read_text(), re.M))
+if len(reports) != expected:
+    raise SystemExit(f'Expected {expected} axiom reports; found {len(reports)}')
 for report in reports:
     unexpected = {a.strip() for a in report.split(',') if a.strip()} - allowed
     if unexpected:

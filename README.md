@@ -1,12 +1,13 @@
 # Weingarten calculus in Lean 4
 
-**Status: verified partial formalization. The general Haar integration formula is
-not yet proved unconditionally.** The remaining main obligation is an explicit
-permutation-tensor spanning theorem, described below. No placeholder proof or
-extra axiom is used to discharge it.
+**The general unitary Weingarten integration formula is proved**, for arbitrary
+matrix dimension and moment order, including the singular Gram matrix regime
+`d < k`. The previously missing permutation-tensor spanning theorem is now
+unconditional. All unequal-degree mixed moments are also proved to vanish.
 
 The project uses Lean **4.28.0** and Mathlib **v4.28.0**, with exact dependency
-revisions recorded in `lake-manifest.json`.
+revisions recorded in `lake-manifest.json`. No `sorry`, `admit`, or additional
+axioms are used.
 
 ## Build and use
 
@@ -15,125 +16,97 @@ With [elan](https://github.com/leanprover/elan) installed:
 ```sh
 lake exe cache get
 lake build
-lake build Weingarten.Examples Weingarten.AxiomAudit
+scripts/check.sh
 ```
 
-`lean-toolchain` selects the required compiler. A fresh checkout fetches the
-pinned dependencies; the development environment reused an existing local
-Mathlib cache, which is not required by the committed configuration.
+`lean-toolchain` selects the compiler. A fresh checkout fetches the pinned
+dependencies. The verification script additionally requires Python 3.
+The local development cache is not required by the committed configuration.
 
-Import the public API with:
+Import the public API with `import Weingarten`.
+[`Weingarten/Examples.lean`](Weingarten/Examples.lean) contains compiled applications
+in arbitrary positive dimension and order, an explicit `d = 2, k = 3`
+singular-regime application, unequal-degree vanishing, and low-order results.
+No spanning assumption is needed in any of these examples.
 
-```lean
-import Weingarten
-```
+## Main theorem and conventions
 
-[`Weingarten/Examples.lean`](Weingarten/Examples.lean) contains checked examples,
-including reciprocal-dimension entry moments, vanishing mixed moments, arbitrary
-balanced moments of `U(1)`, stable-range inverses, and a generalized-inverse
-identity with moment order exceeding dimension.
-
-## What is proved
-
-All statements below are machine-checked Lean theorems.
-
-* Compactness of the actual complex unitary matrix group, existence and
-  uniqueness of normalized Haar probability measure, and invariance under left
-  multiplication, right multiplication, and inversion.
-* Continuity and integrability of every mixed matrix-entry monomial. Moments
-  are Bochner integrals against this Haar measure, not abstract symbols.
-* For arbitrary dimension, the complete order-one formula:
-
-  \[
-  \int_{U(n)} U_{ij}\overline{U_{kl}}\,dU
-    = \frac{\delta_{ik}\delta_{jl}}{n}.
-  \]
-
-  The Lean theorem is `Weingarten.integral_entry_mul_conj`.
-* The empty moment equals one; every mixed moment of odd total degree vanishes;
-  every balanced moment of `U(1)` equals one, at arbitrary order.
-* Tensor-power row orthogonality and contraction against every permutation
-  tensor, for arbitrary dimension and moment order.
-* The Haar moment matrix is Hermitian and fixes all permutation tensors.
-* Permutation Gram entries count compatible words. The Gram matrix is positive
-  semidefinite in every dimension and positive definite when the positions embed
-  into the matrix indices (in particular, when `p ≤ n`).
-* A spectral inverse for Hermitian matrices, with **all four Moore–Penrose
-  equations**. Applied to the Gram matrix, this defines the Weingarten matrix
-  even in the singular range. It equals the ordinary inverse when `p ≤ n`.
-* The arbitrary-order integration formula **assuming the explicit spanning
-  assertion below**. This is a reduction theorem, not a completed proof of that
-  assertion.
-
-The group and Gram constructions include dimension zero and moment order zero.
-Entrywise results require actual indices; thus there are no entries to quantify
-over in dimension zero. No positive-dimension assumption is hidden in the API.
-
-## Conventions and the remaining theorem
-
-Let `α` be the matrix-index type, and let words be functions `Fin p → α`.
-For a permutation `σ`, define
+Let `α` be a finite matrix-index type and let words be functions `Fin k → α`.
+Define the permutation tensors and their Gram matrix by
 
 \[
 \Delta_\sigma(i,i')=[i'=i\circ\sigma],\qquad
 A_{(i,i'),\sigma}=\Delta_\sigma(i,i'),\qquad G=A^*A.
 \]
 
-These are `pairing`, `diagramMatrix`, and `gramMatrix`. The proved counting formula is
+These are `pairing`, `diagramMatrix`, and `gramMatrix`. The coefficients
+`W = weingartenMatrix (Fin k) α` are defined as the spectral Moore–Penrose inverse
+of `G`: invert each nonzero eigenvalue and retain zero on the kernel. All four
+Moore–Penrose equations are proved. In the stable range `k ≤ card α`,
+`weingartenMatrix_eq_inv` identifies this with the ordinary inverse.
+
+The main theorem **`Weingarten.integral_unitary_weingarten`** states
 
 \[
-G_{\sigma,\tau}=\sum_{i:\{1,\ldots,p\}\to\alpha}
-  [i\circ\sigma=i\circ\tau].
-\]
-
-In particular `G σ σ = n^p`. The familiar description using the number of cycles
-is not yet formalized.
-
-Write `W = weingartenMatrix (Fin p) α` for the spectral Moore–Penrose inverse of
-`G`. This is a two-permutation coefficient matrix; a separate API identifying
-its entries with a central function of one relative permutation is not yet
-provided.
-
-The Haar moment matrix is defined by
-
-\[
-P_{(i,i'),(j,j')}=
-  \int\prod_{a=1}^{p}U_{i_a j_a}
-       \overline{\prod_{a=1}^{p}U_{i'_a j'_a}}\,dU.
-\]
-
-The library proves `Pᴴ = P` and `P * A = A`. **What remains is to prove that every
-column of `P` lies in the span of the permutation tensors**, expressed precisely as:
-
-```lean
-∃ B, momentMatrix α p = diagramMatrix * B
-```
-
-Given this hypothesis, `momentMatrix_eq_of_span` proves `P = A * W * Aᴴ`, and
-`mixedMoment_eq_of_span` proves its coordinate expansion:
-
-\[
-\int\prod_a U_{i_a j_a}\overline{\prod_a U_{i'_a j'_a}}\,dU
- = \sum_{\sigma,\tau}
+\int_{U(\alpha)}\prod_{a=1}^{k}U_{i_a j_a}
+       \overline{\prod_{a=1}^{k}U_{i'_a j'_a}}\,dU
+ = \sum_{\sigma,\tau\in S_k}
    \Delta_\sigma(i,i')\,W_{\sigma,\tau}\,\Delta_\tau(j,j').
 \]
 
-There is no dimension/order restriction on these conditional results.
-`projection_eq_of_generalizedInverse` is the reusable linear-algebra theorem
-behind the reduction and requires only `G * W * G = G` from the inverse.
+This is an actual Bochner integral against normalized Haar measure on Mathlib's
+complex unitary matrix group. Every integrand is proved continuous and
+integrable. **There is no spanning, representation-theory, or dimension/order
+hypothesis in the theorem.** It applies to every positive dimension `d` by
+setting `α = Fin d`, for every `k`, including `d < k`. The definitions and theorem
+also cover empty index types and order zero.
 
-The substantive obstacle is invariant theory: establish that the invariant
-tensors of `U(n)` in the relevant mixed tensor power are generated by permutation
-contractions, including their dependencies when `p > n`. A route forward is to
-formalize the unitary invariant-tensor theorem, then show that the columns of
-Haar averaging are invariant and deduce the displayed factorization. This
-repository does not yet contain that argument, and the inspected Mathlib
-infrastructure did not supply a theorem directly discharging it.
+The result is also available as `mixedMoment_eq_weingarten` using the moment
+abbreviation, and as `momentMatrix_eq_weingarten` in matrix form, `P = A W Aᴴ`.
+For unequal degrees, `mixedMoment_eq_zero_of_ne` proves
 
-Also unfinished are vanishing for **all** unequal entry/conjugate degrees
-(only odd total degree is currently handled), the cycle-count Gram formula,
-and the conventional single-permutation class-function API. No arbitrary-order
-unconditional formula for general dimension is claimed.
+\[
+\int\prod_{a=1}^{p}U_{i_a j_a}
+       \overline{\prod_{b=1}^{q}U_{i'_b j'_b}}\,dU=0
+\qquad(p\ne q).
+\]
+
+The coefficient API uses two permutations and the Gram pseudoinverse. A central
+function API in one relative permutation, cycle-count notation, and character
+expansions are optional extensions, not assumptions needed for the proved formula.
+
+## How the spanning gap is closed
+
+1. **Haar projection.** `range_momentMatrix` identifies the range of the actual
+   moment matrix with `invariantTensors`. Vectorization identifies invariance
+   with commuting with all unitary tensor powers.
+2. **Polynomial identity principle.** `polynomial_eq_zero_of_unitary` proves that
+   complex polynomials in matrix entries vanishing on every unitary matrix
+   vanish on every matrix. The proof uses the spectral theorem and polynomial
+   uniqueness on products of circles for Hermitian matrices, then complexifies
+   using two Hermitian matrices.
+3. **Permutation commutant.** Equal multiplicities characterize words related by
+   a permutation. Polynomial coefficient extraction and linear duality show
+   that permutation-invariant matrices lie in the span of arbitrary matrix
+   tensor powers. Repeated letters are allowed, with no stable-range assumption.
+4. **Double commutant.** Maschke's theorem and Mathlib's Jacobson density theorem
+   give the double-commutant theorem for any finite-group representation,
+   including nonfaithful ones. Combining these results proves
+   `unitary_tensor_commutant`, the dimension-free Schur–Weyl commutant theorem.
+5. **Spanning and integration.** `invariantTensors_le_range_diagramMatrix` proves
+   spanning. Consequently `momentMatrix_factorization` proves the exact
+   formerly open statement:
+
+   ```lean
+   ∃ B, momentMatrix α k = diagramMatrix * B
+   ```
+
+   The existing generalized-inverse reconstruction theorem gives the full
+   integral formula. Only `G W G = G` is required, so singular Gram matrices
+   cause no loss of generality.
+
+All steps are formal Lean proofs. The older conditional reconstruction lemmas
+remain as reusable APIs, but the main theorems discharge their hypotheses internally.
 
 ## Organization
 
@@ -141,20 +114,27 @@ unconditional formula for general dimension is claimed.
 | --- | --- |
 | `Haar` | Compact unitary group, normalized Haar measure, invariances |
 | `Symmetries` | Permutation and diagonal-sign unitary matrices |
-| `Moments` | Products, mixed integrals, integrability, odd moments, `U(1)` |
-| `FirstMoment` | Order-one Weingarten formula in arbitrary dimension |
-| `Permutation` | Permutation tensors, Gram counting, stable-range independence |
+| `Moments` | Mixed integrals, integrability, odd moments, `U(1)` |
+| `FirstMoment` | Order-one formula in arbitrary dimension |
+| `Permutation` | Diagram tensors, Gram counting, stable-range independence |
 | `Projection` | Reconstruction using a possibly singular Gram matrix |
 | `GeneralizedInverse` | Spectral Moore–Penrose inverse and Weingarten matrix |
-| `TensorPower` | General contractions and Hermitian Haar moment matrix |
-| `Integration` | General integration formula conditional on spanning |
-| `Examples` | Compiled public API examples |
-| `AxiomAudit` | Transitive axiom reports for the principal results |
+| `TensorPower` | General contractions and Hermitian moment matrix |
+| `HaarProjection` | Representation action and exact range of Haar averaging |
+| `DoubleCommutant` | Finite-group double commutant via Maschke and density |
+| `UnitaryPolynomial` | Polynomial identity principle for unitary matrices |
+| `WordWeight`, `PolynomialSpan` | Multiplicities and monomial-evaluation spans |
+| `TensorMatrix` | Tensor matrices and position-permutation representation |
+| `SchurWeyl` | Dimension-free unitary commutant theorem |
+| `InvariantSpanning` | Unconditional spanning and Haar factorization |
+| `Integration` | Full balanced Weingarten formula |
+| `UnbalancedMoments` | Vanishing for every pair of unequal degrees |
+| `Examples`, `AxiomAudit` | Checked applications and logical dependency reports |
 
 ## Verification
 
-`scripts/check.sh` builds the library and examples, checks for proof placeholders,
-and inspects the axiom reports. The allowed logical foundations are Lean's
-`propext`, `Classical.choice`, and `Quot.sound`; no additional axioms or
-`sorryAx` are allowed. Conditional theorems retain their hypotheses explicitly
-in their types.
+`scripts/check.sh` builds the library and examples, checks sources for proof
+placeholders, and inspects transitive axiom reports for the principal results,
+including Schur–Weyl duality, spanning, and the general integration theorem.
+Only Lean's standard foundations `propext`, `Classical.choice`, and `Quot.sound`
+are allowed; no `sorryAx` or additional axiom is permitted.

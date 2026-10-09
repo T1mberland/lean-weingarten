@@ -16,3 +16,12 @@ import Weingarten
 #print axioms Weingarten.momentMatrix_mul_diagramMatrix
 #print axioms Weingarten.momentMatrix_conjTranspose
 #print axioms Weingarten.mixedMoment_eq_of_span
+#print axioms Weingarten.range_momentMatrix
+#print axioms Weingarten.exists_sum_representation_of_commutes
+#print axioms Weingarten.polynomial_eq_zero_of_unitary
+#print axioms Weingarten.mem_span_monomial_evaluations
+#print axioms Weingarten.unitary_tensor_commutant
+#print axioms Weingarten.invariantTensors_le_range_diagramMatrix
+#print axioms Weingarten.momentMatrix_factorization
+#print axioms Weingarten.integral_unitary_weingarten
+#print axioms Weingarten.mixedMoment_eq_zero_of_ne

@@ -1,12 +1,14 @@
 # Development instructions
 
-This is a Lean 4.28 / Mathlib v4.28 project. Read README.md before extending it;
-the arbitrary-order integration theorem is still conditional on spanning.
+This is a Lean 4.28 / Mathlib v4.28 project. Read README.md before extending it.
+The general formula, including the singular Gram regime, is proved by
+`integral_unitary_weingarten`; `momentMatrix_factorization` closes the original gap.
 
 * Keep all mathematical statements faithful to actual Haar integration.
 * Do not use `sorry`, `admit`, new axioms, or assumptions hidden in typeclasses to
   bypass a missing mathematical theorem.
-* Keep the remaining spanning obligation explicit until it has been proved.
+* Preserve the unconditional, arbitrary-dimension and arbitrary-order statements.
+  Do not reintroduce a spanning hypothesis or a stable-range restriction.
 * Use `import Weingarten` as the public entry point. Put reusable additions in
   focused modules under `Weingarten/` and examples in `Weingarten/Examples.lean`.
 * Run `scripts/check.sh` after changes and update README.md when the proved scope
