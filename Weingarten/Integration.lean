@@ -1,17 +1,18 @@
-import Weingarten.TensorPower
+import Weingarten.InvariantSpanning
 import Weingarten.GeneralizedInverse
 
 set_option autoImplicit false
 
 /-!
-# Conditional reduction of the general integration formula
+# The general unitary Weingarten integration formula
 
-This file states exactly the missing bridge to invariant theory as an explicit
-spanning hypothesis, not as an axiom or hidden typeclass assumption. It is not an
-unconditional proof of the general Weingarten formula.
+The spanning theorem is proved in `InvariantSpanning`. The main results at the
+end of this file have no projection, invariant-theory, or stable-range hypotheses.
+The earlier conditional lemmas remain available as reusable reconstruction APIs.
 -/
 
 open scoped Matrix BigOperators
+open MeasureTheory
 
 namespace Weingarten
 
@@ -44,15 +45,14 @@ theorem mixedMoment_eq_of_projection_hypotheses
   rw [Finset.sum_comm] at h
   exact h
 
-/-- Only the spanning assertion remains to obtain the arbitrary-order matrix formula. -/
+/-- A reconstruction API for any supplied spanning factorization. -/
 theorem momentMatrix_eq_of_span
     (hspan : ∃ B, momentMatrix α p = diagramMatrix * B) :
     momentMatrix α p = diagramMatrix * weingartenMatrix (Fin p) α * diagramMatrixᴴ :=
   momentMatrix_eq_of_projection_hypotheses momentMatrix_conjTranspose
     momentMatrix_mul_diagramMatrix hspan
 
-/-- General Weingarten integration, **conditional on the unproved spanning assertion**.
-There is no restriction on dimension or moment order in this reduction theorem. -/
+/-- A coordinate reconstruction API for any supplied spanning factorization. -/
 theorem mixedMoment_eq_of_span
     (hspan : ∃ B, momentMatrix α p = diagramMatrix * B)
     (i j i' j' : Fin p → α) :
@@ -61,5 +61,29 @@ theorem mixedMoment_eq_of_span
         pairing σ i i' * weingartenMatrix (Fin p) α σ τ * pairing τ j j' :=
   mixedMoment_eq_of_projection_hypotheses momentMatrix_conjTranspose
     momentMatrix_mul_diagramMatrix hspan i j i' j'
+
+/-- The general Haar moment matrix is reconstructed from the spectral Weingarten
+matrix, including the singular Gram matrix regime. -/
+theorem momentMatrix_eq_weingarten :
+    momentMatrix α p = diagramMatrix * weingartenMatrix (Fin p) α * diagramMatrixᴴ :=
+  momentMatrix_eq_of_span momentMatrix_factorization
+
+/-- **The general unitary Weingarten formula**, with no relation required between
+the matrix dimension and moment order. -/
+theorem mixedMoment_eq_weingarten (i j i' j' : Fin p → α) :
+    mixedMoment i j i' j' =
+      ∑ σ : Equiv.Perm (Fin p), ∑ τ : Equiv.Perm (Fin p),
+        pairing σ i i' * weingartenMatrix (Fin p) α σ τ * pairing τ j j' :=
+  mixedMoment_eq_of_span momentMatrix_factorization i j i' j'
+
+/-- **The general unitary Weingarten integration formula** as an explicit Haar
+integral. The Weingarten matrix is the Moore–Penrose inverse of the permutation
+Gram matrix, so this statement applies in particular when `card α < p`. -/
+theorem integral_unitary_weingarten (i j i' j' : Fin p → α) :
+    (∫ U : UnitaryGroup α,
+      (∏ a, U (i a) (j a)) * star (∏ a, U (i' a) (j' a)) ∂haar α) =
+      ∑ σ : Equiv.Perm (Fin p), ∑ τ : Equiv.Perm (Fin p),
+        pairing σ i i' * weingartenMatrix (Fin p) α σ τ * pairing τ j j' :=
+  mixedMoment_eq_weingarten i j i' j'
 
 end Weingarten

@@ -1,10 +1,11 @@
 import Weingarten.FirstMoment
 import Weingarten.Integration
+import Weingarten.UnbalancedMoments
 
 /-!
 # Weingarten calculus
 
-Public entry point. The order-one integration formula is unconditional.
-`mixedMoment_eq_of_span` reduces the arbitrary-order formula to an explicit,
-as yet unproved spanning hypothesis. See the README for the exact scope.
+Public entry point. `integral_unitary_weingarten` proves the general balanced
+formula in every dimension and order, including singular Gram matrices.
+`mixedMoment_eq_zero_of_ne` handles all unbalanced mixed moments.
 -/
