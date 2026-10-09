@@ -28,6 +28,8 @@ Import the public API with `import Weingarten`.
 in arbitrary positive dimension and order, an explicit `d = 2, k = 3`
 singular-regime application, unequal-degree vanishing, and low-order results.
 No spanning assumption is needed in any of these examples.
+The [independent audit](AUDIT.md) checks the statement semantics, the Schur–Weyl
+argument, normalization, logical dependencies, and explicit low-order values.
 
 ## Main theorem and conventions
 
@@ -129,7 +131,14 @@ remain as reusable APIs, but the main theorems discharge their hypotheses intern
 | `InvariantSpanning` | Unconditional spanning and Haar factorization |
 | `Integration` | Full balanced Weingarten formula |
 | `UnbalancedMoments` | Vanishing for every pair of unequal degrees |
+| `LowOrder` | Explicit coefficients at orders zero, one, and two; singular `d = 1, k = 2` |
 | `Examples`, `AxiomAudit` | Checked applications and logical dependency reports |
+
+At order two, `integral_unitary_two` gives the explicit four-term formula for
+`d ≥ 2`. In dimension one, `weingartenMatrix_one_two` proves every pseudoinverse
+entry is `1/4`, and `integral_one_two` obtains integral one from the general
+formula. `spectralInverse_eq_of_penrose` proves uniqueness from the four
+Moore–Penrose equations.
 
 ## Verification
 

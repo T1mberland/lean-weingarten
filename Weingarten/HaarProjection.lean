@@ -3,7 +3,7 @@ import Weingarten.TensorPower
 /-!
 # Haar averaging projects onto the invariant tensors
 
-This is the analytic part of the remaining spanning problem. It identifies the
+This is the analytic part of the spanning theorem. It identifies the
 range of the actual moment matrix with the fixed vectors of the mixed tensor
 representation, without an invariant-theory assumption.
 -/
@@ -120,7 +120,7 @@ theorem diagramMatrix_col_mem_invariantTensors (σ : Equiv.Perm (Fin p)) :
   exact momentMatrix_mulVec_mem_invariantTensors _
 
 /-- Spanning the invariant tensors is equivalent to the original matrix factorization.
-This equivalence makes the remaining algebraic theorem precise. -/
+The algebraic inclusion is proved in `InvariantSpanning`. -/
 theorem momentMatrix_factorization_iff_invariantTensors_le :
     (∃ B, momentMatrix α p = diagramMatrix * B) ↔
       invariantTensors α p ≤ LinearMap.range (diagramMatrix (ι := Fin p) (α := α)).mulVecLin := by

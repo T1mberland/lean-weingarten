@@ -69,3 +69,49 @@ example {d : ℕ} (i j : Fin 4 → Fin d) (i' j' : Fin 2 → Fin d) :
 example (d k : ℕ) :
     ∃ B, momentMatrix (Fin d) k = diagramMatrix * B :=
   momentMatrix_factorization
+
+-- Re-derive the order-one formula through the general theorem and its coefficient.
+example {α : Type*} [Fintype α] [DecidableEq α] (i j i' j' : α) :
+    (∫ U : UnitaryGroup α, U i j * star (U i' j') ∂haar α) =
+      (if i = i' then (1 : ℂ) else 0) * (if j = j' then (1 : ℂ) else 0) /
+        (Fintype.card α : ℂ) := by
+  letI : Nonempty α := ⟨i⟩
+  have h := integral_unitary_weingarten (fun _ : Fin 1 => i) (fun _ => j)
+    (fun _ => i') (fun _ => j')
+  simpa [weingartenMatrix_fin_one, pairing, Function.comp_def, funext_iff, eq_comm,
+    div_eq_mul_inv, mul_assoc, mul_left_comm, mul_comm] using h
+
+-- Fourth absolute moment in U(2), obtained from the general formula.
+example : (∫ U : UnitaryGroup (Fin 2),
+    (U 0 0 * U 0 0) * star (U 0 0 * U 0 0) ∂haar (Fin 2)) = 1 / 3 := by
+  have h := integral_unitary_two (α := Fin 2) (by decide)
+    ![0, 0] ![0, 0] ![0, 0] ![0, 0]
+  norm_num [pairing, funext_iff, Fin.forall_fin_two, Function.comp_def,
+    Fin.prod_univ_two] at h
+  simpa using h
+
+-- A negative fourth mixed moment tests the off-diagonal coefficient and index convention.
+example : (∫ U : UnitaryGroup (Fin 2),
+    (U 0 0 * U 1 1) * star (U 0 1 * U 1 0) ∂haar (Fin 2)) = -1 / 6 := by
+  have h := integral_unitary_two (α := Fin 2) (by decide)
+    ![0, 1] ![0, 1] ![0, 1] ![1, 0]
+  norm_num [pairing, funext_iff, Fin.forall_fin_two, Function.comp_def,
+    Fin.prod_univ_two] at h
+  simpa [div_eq_mul_inv] using h
+
+-- In the singular case each coefficient is 1/4, not an ordinary inverse entry.
+example (σ τ : Equiv.Perm (Fin 2)) :
+    weingartenMatrix (Fin 2) (Fin 1) σ τ = 1 / 4 :=
+  weingartenMatrix_one_two σ τ
+
+example : (∫ U : UnitaryGroup (Fin 1),
+    (U 0 0 * U 0 0) * star (U 0 0 * U 0 0) ∂haar (Fin 1)) = 1 := by
+  simpa [Fin.prod_univ_two] using integral_one_two ![0, 0] ![0, 0] ![0, 0] ![0, 0]
+
+-- Even dimension zero has an order-zero coefficient equal to one.
+example (σ τ : Equiv.Perm (Fin 0)) : weingartenMatrix (Fin 0) (Fin 0) σ τ = 1 :=
+  weingartenMatrix_fin_zero σ τ
+
+example (i j i' j' : Fin 0 → Fin 0) : mixedMoment i j i' j' = 1 := by
+  rw [mixedMoment_eq_weingarten]
+  simp [weingartenMatrix_fin_zero, pairing, funext_iff]

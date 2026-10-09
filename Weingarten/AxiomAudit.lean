@@ -25,3 +25,11 @@ import Weingarten
 #print axioms Weingarten.momentMatrix_factorization
 #print axioms Weingarten.integral_unitary_weingarten
 #print axioms Weingarten.mixedMoment_eq_zero_of_ne
+#print axioms Weingarten.spectralInverse_eq_of_penrose
+#print axioms Weingarten.weingartenMatrix_fin_zero
+#print axioms Weingarten.weingartenMatrix_fin_one
+#print axioms Weingarten.gramMatrix_fin_two
+#print axioms Weingarten.weingartenMatrix_fin_two
+#print axioms Weingarten.integral_unitary_two
+#print axioms Weingarten.weingartenMatrix_one_two
+#print axioms Weingarten.integral_one_two

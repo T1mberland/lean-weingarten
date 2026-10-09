@@ -1,5 +1,6 @@
 import Weingarten.FirstMoment
 import Weingarten.Integration
+import Weingarten.LowOrder
 import Weingarten.UnbalancedMoments
 
 /-!

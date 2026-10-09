@@ -88,6 +88,34 @@ theorem spectralInverse_mul_isHermitian {A : Matrix n n ℂ} (h : A.IsHermitian)
   rw [← (commute_spectralInverse h).eq]
   exact mul_spectralInverse_isHermitian h
 
+/-- The four Moore–Penrose equations characterize the spectral inverse uniquely.
+This also makes the construction independent of the chosen eigenbasis. -/
+theorem spectralInverse_eq_of_penrose {A B : Matrix n n ℂ} (h : A.IsHermitian)
+    (hABA : A * B * A = A) (hBAB : B * A * B = B)
+    (hAB : (A * B).IsHermitian) (hBA : (B * A).IsHermitian) :
+    spectralInverse h = B := by
+  let W := spectralInverse h
+  have hAWA : A * W * A = A := mul_spectralInverse_mul h
+  have hWAW : W * A * W = W := spectralInverse_mul_spectralInverse h
+  have hAW : (A * W)ᴴ = A * W := (mul_spectralInverse_isHermitian h).eq
+  have hWA : (W * A)ᴴ = W * A := (spectralInverse_mul_isHermitian h).eq
+  have h₁ : A * W = A * B := by
+    have he : A * B * (A * W) = A * W := by rw [← Matrix.mul_assoc, hABA]
+    have hs := congr_arg Matrix.conjTranspose he
+    rw [Matrix.conjTranspose_mul, hAW, hAB.eq] at hs
+    simpa only [← Matrix.mul_assoc, hAWA] using hs.symm
+  have h₂ : W * A = B * A := by
+    have he : (W * A) * (B * A) = W * A := by
+      rw [Matrix.mul_assoc, ← Matrix.mul_assoc A, hABA]
+    have hs := congr_arg Matrix.conjTranspose he
+    rw [Matrix.conjTranspose_mul, hWA, hBA.eq] at hs
+    simpa only [Matrix.mul_assoc, ← Matrix.mul_assoc A W A, hAWA] using hs.symm
+  calc
+    W = W * A * W := hWAW.symm
+    _ = B * (A * W) := by rw [h₂, Matrix.mul_assoc]
+    _ = B * A * B := by rw [h₁, ← Matrix.mul_assoc]
+    _ = B := hBAB
+
 /-- The canonical spectral inverse of the permutation Gram matrix. -/
 def weingartenMatrix (ι α : Type*) [Fintype ι] [DecidableEq ι]
     [Fintype α] [DecidableEq α] : Matrix (Equiv.Perm ι) (Equiv.Perm ι) ℂ :=
