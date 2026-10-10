@@ -115,3 +115,38 @@ example (σ τ : Equiv.Perm (Fin 0)) : weingartenMatrix (Fin 0) (Fin 0) σ τ = 
 example (i j i' j' : Fin 0 → Fin 0) : mixedMoment i j i' j' = 1 := by
   rw [mixedMoment_eq_weingarten]
   simp [weingartenMatrix_fin_zero, pairing, funext_iff]
+
+-- The constant is chosen before both dimension and permutation. Fixed points
+-- count as cycles, so this is precisely the exponent r + (r - #cycles).
+example (r : ℕ) : ∃ C : ℝ, 0 < C ∧ ∀ d : ℕ, 0 < d →
+    ∀ σ : Equiv.Perm (Fin r),
+      ‖weingarten d σ‖ ≤ C / (d : ℝ) ^ (r + (r - cycleCount σ)) := by
+  simpa [permLength] using exists_weingarten_bound r
+
+-- An explicit constant in sufficiently large dimensions.
+example {r d : ℕ} (hd : 2 * r.factorial ≤ d) (σ : Equiv.Perm (Fin r)) :
+    ‖weingarten d σ‖ ≤ 2 * (2 * (r.factorial : ℝ)) ^ r /
+      (d : ℝ) ^ (r + permLength σ) :=
+  norm_weingarten_le_large hd σ
+
+-- Identity coefficients decay as d^(-r), in all positive dimensions.
+example (r d : ℕ) (hd : 0 < d) :
+    ‖weingarten d (1 : Equiv.Perm (Fin r))‖ ≤ weingartenBound r / (d : ℝ) ^ r := by
+  simpa using norm_weingarten_le d hd (1 : Equiv.Perm (Fin r))
+
+-- The extra power for a transposition is essential: at order two it is d^(-3).
+example (d : ℕ) (hd : 0 < d) :
+    ‖weingarten d (Equiv.swap (0 : Fin 2) 1)‖ ≤ weingartenBound 2 / (d : ℝ) ^ 3 := by
+  have hlt := permLength_lt (Equiv.swap (0 : Fin 2) 1)
+  have hne : permLength (Equiv.swap (0 : Fin 2) 1) ≠ 0 :=
+    (permLength_eq_zero_iff _).not.mpr (by decide)
+  have hlen : permLength (Equiv.swap (0 : Fin 2) 1) = 1 := by
+    simp only [Fintype.card_fin] at hlt
+    omega
+  simpa [hlen] using norm_weingarten_le d hd (Equiv.swap (0 : Fin 2) 1)
+
+-- The asymptotic API is also available directly.
+example {r : ℕ} (σ : Equiv.Perm (Fin r)) :
+    (fun d : ℕ => weingarten d σ) =O[Filter.atTop]
+      (fun d : ℕ => ((d : ℝ) ^ (r + permLength σ))⁻¹) :=
+  weingarten_isBigO σ

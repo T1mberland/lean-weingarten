@@ -33,3 +33,13 @@ import Weingarten
 #print axioms Weingarten.integral_unitary_two
 #print axioms Weingarten.weingartenMatrix_one_two
 #print axioms Weingarten.integral_one_two
+#print axioms Weingarten.finrank_cycleFunctions
+#print axioms Weingarten.permLength_mul_le
+#print axioms Weingarten.permLength_eq_zero_iff
+#print axioms Weingarten.gramMatrix_eq_pow_cycleCount
+#print axioms Weingarten.matrix_inverse_entry_decay
+#print axioms Weingarten.weingartenMatrix_scaled_bound
+#print axioms Weingarten.norm_weingarten_le_large
+#print axioms Weingarten.norm_weingarten_le
+#print axioms Weingarten.exists_weingarten_bound
+#print axioms Weingarten.weingarten_isBigO

@@ -73,9 +73,56 @@ For unequal degrees, `mixedMoment_eq_zero_of_ne` proves
 \qquad(p\ne q).
 \]
 
-The coefficient API uses two permutations and the Gram pseudoinverse. A central
-function API in one relative permutation, cycle-count notation, and character
-expansions are optional extensions, not assumptions needed for the proved formula.
+The integration API uses two permutations and the Gram pseudoinverse.
+`weingarten d σ` is its identity-row coefficient. Cycle-count notation and
+uniform coefficient bounds are now available as described below. Character
+expansions and a conjugacy-invariance API remain optional extensions.
+
+## Bounds on Weingarten coefficients
+
+`cycleCount σ` counts the equivalence classes of `SameCycle`, **including fixed
+points**. The transposition length is `permLength σ = r - cycleCount σ` for
+`σ : Equiv.Perm (Fin r)`. The triangle inequality for this length and the standard
+Gram entry formula are proved in `PermutationLength` and `GramCycles`.
+
+**`exists_weingarten_bound`** proves the quantifiers in the following order:
+
+\[
+\forall r\;\exists C_r>0\;\forall d\ge1\;\forall\sigma\in S_r,\qquad
+|\mathrm{Wg}_d(\sigma)|\le C_r\,d^{-r-|\sigma|}.
+\]
+
+The constant is uniform over both dimension and permutation. This includes
+the singular regime, using the existing Moore–Penrose definition of the
+coefficients. `norm_weingarten_le` gives the bound with the particular constant
+`weingartenBound r`, and `weingarten_isBigO` exposes the corresponding Mathlib
+big-O statement at `Filter.atTop`.
+
+For **`d ≥ 2 * r!`**, `norm_weingarten_le_large` gives the explicit, nonoptimal
+constant
+
+\[
+C_r^{\mathrm{large}}=2(2r!)^r.
+\]
+
+For all positive dimensions, `weingartenBound r` adds the finite correction
+
+\[
+\sum_{m=0}^{2r!-1}\ \sum_{\pi\in S_r}
+m^{r+|\pi|}|\mathrm{Wg}_m(\pi)|
+\]
+
+to this explicit constant. This is a finite, noncomputable expression depending
+only on `r`; the all-dimension theorem does not assert that the same explicit
+constant suffices in the smaller dimensions.
+
+The proof uses a weighted maximum argument for inverse matrices. For a fixed
+column, weights `(d/(2r!))^|τ σ⁻¹|` make the off-diagonal contribution at most
+half the maximum. The required length inequality follows from dimensions of
+spaces of cycle-constant functions. No formal-series convergence assumption or
+character formula is used. This establishes the upper-bound order of
+[Collins–Śniady, Proposition 2.6](https://arxiv.org/pdf/math-ph/0402073), without
+formalizing its sharper leading-order expansion.
 
 ## How the spanning gap is closed
 
@@ -132,6 +179,8 @@ remain as reusable APIs, but the main theorems discharge their hypotheses intern
 | `Integration` | Full balanced Weingarten formula |
 | `UnbalancedMoments` | Vanishing for every pair of unequal degrees |
 | `LowOrder` | Explicit coefficients at orders zero, one, and two; singular `d = 1, k = 2` |
+| `PermutationLength`, `GramCycles` | Cycle counts, permutation length and its triangle inequality, standard Gram entries |
+| `MatrixDecay`, `Asymptotics` | Weighted inverse bounds and uniform `d^(-r-|σ|)` coefficient decay |
 | `Examples`, `AxiomAudit` | Checked applications and logical dependency reports |
 
 At order two, `integral_unitary_two` gives the explicit four-term formula for

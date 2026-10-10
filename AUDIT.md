@@ -2,6 +2,12 @@
 
 Audit date: 2026-10-09. The starting revision was `6a78741`.
 
+Subsequent extension, 2026-10-10: `PermutationLength`, `GramCycles`,
+`MatrixDecay`, and `Asymptotics` add the cycle-count Gram formula and the uniform
+bound `|Wg_d(σ)| ≤ C_r / d^(r+|σ|)` for all positive dimensions. See the
+[current coefficient-bound API](README.md#bounds-on-weingarten-coefficients).
+The build counts and scope assessments below record the original audit.
+
 **Verdict:** the library proves the standard unitary Haar integration formula
 in coordinates, in arbitrary dimension and order, including singular Gram
 matrices. No mathematical gap, hidden spanning assumption, circular definition,
